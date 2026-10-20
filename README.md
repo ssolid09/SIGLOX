@@ -1,40 +1,36 @@
-# SIGLOX · Sistema Integral de Gestión
+# SIGLOX · Sistema Integral de Gestión (versión con servidor)
 
-Plataforma de logística con login, usuario maestro, roles y permisos por módulo
-(Reporte Devoluciones Móviles, Nivel de Servicio Móviles, Reporte de Móviles, Gestión de Usuarios).
+Página estática en GitHub Pages + base de datos y login en Supabase.
+Usuarios, permisos y datos de los 3 dashboards son los mismos en todos los dispositivos.
 
-Es un único archivo (`index.html`) sin dependencias ni servidor.
+## 1. Crear el proyecto en Supabase (gratis)
+1. Entra a supabase.com → **New project** (anota la contraseña de la base de datos; elige región cercana, p. ej. South America).
+2. Menú **SQL Editor → New query** → pega el contenido de `supabase-setup.sql` → **Run**.
+   Debe responder "Success". Crea el usuario maestro `sacc` con la clave inicial.
+3. **Project Settings → API**: copia la **Project URL** y la clave **anon / publishable**.
+   (Nunca uses la `service_role` ni la `secret`.)
 
-## Publicar en GitHub Pages
+## 2. Configurar la página
+Abre `config.js` y pega la URL y la clave pública.
 
-1. En GitHub: **New repository** → nombre `siglox` → **Create repository**.
-2. **Add file → Upload files** → sube `index.html`, `.nojekyll` y `README.md` → **Commit changes**.
-3. **Settings → Pages → Build and deployment**:
-   - Source: **Deploy from a branch**
-   - Branch: **main** · carpeta **/ (root)** → **Save**.
-4. En 1–2 minutos queda en: `https://TU-USUARIO.github.io/siglox/`
+## 3. Publicar en GitHub Pages
+Sube a un repositorio: `index.html`, `config.js`, `.nojekyll`, `README.md`.
+**No subas `supabase-setup.sql`** (contiene la clave inicial del maestro).
+Settings → Pages → Deploy from a branch → `main` / `(root)`.
 
-### Con Git (alternativa)
+## 4. Primer ingreso
+- Entra como maestro y cambia la contraseña con **Cambiar contraseña**.
+- Si ya tenías datos guardados en un navegador, haz el primer ingreso desde ese mismo navegador:
+  se suben al servidor automáticamente (una sola vez por dispositivo).
 
-```bash
-git init
-git add .
-git commit -m "SIGLOX v1"
-git branch -M main
-git remote add origin https://github.com/TU-USUARIO/siglox.git
-git push -u origin main
-```
+## Respaldo de usuarios
+En **Gestión de Usuarios** hay **Exportar** e **Importar**. El archivo incluye las contraseñas cifradas de los operadores: guárdalo en un lugar seguro y no lo subas a GitHub.
+Importar crea los usuarios que falten y sobrescribe los que ya existan; el maestro y el SUPER nunca se modifican por importación.
+Si instalaste Supabase antes de esta función, ejecuta una vez `supabase-actualizacion-exportar-importar.sql`.
 
-## Actualizar
-
-Reemplaza `index.html` en el repositorio (o haz `git push`). Los usuarios ya creados no se pierden,
-porque viven en el navegador de cada persona, no en el archivo.
-
-## Importante
-
-- Los usuarios y datos se guardan en el navegador (localStorage): no se comparten entre equipos.
-- El sitio de GitHub Pages es público: el login limita el uso de la app, pero no es seguridad real,
-  porque el código (incluido el hash de la clave inicial del maestro) es visible para cualquiera.
-- Se recomienda cambiar la clave del maestro en el primer ingreso con **Cambiar contraseña**.
+## Notas
+- Si dos personas editan el mismo dashboard a la vez, gana el último guardado.
+- Los datos se descargan al abrir cada módulo; para ver cambios de otra persona, vuelve al menú y ábrelo de nuevo.
+- Los proyectos gratuitos de Supabase se pausan tras una semana sin uso; se reactivan desde su panel.
 
 © Elaborado por Santiago y Sebastián Chávez con fines educativos.

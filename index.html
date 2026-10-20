@@ -103,7 +103,7 @@
     <label class="fld" for="lgP">Contraseña</label>
     <input class="inp" id="lgP" type="password" placeholder="Contraseña" autocomplete="current-password">
     <div class="err" id="lgErr" role="alert"></div>
-    <button class="big" type="submit">Ingresar</button>
+    <button class="big" id="lgBtn" type="submit">Ingresar</button>
   </form>
   <div class="menu-foot">© Elaborado por Santiago y Sebastián Chávez<br>con fines educativos. Todos los derechos reservados.</div>
 </div>
@@ -118,7 +118,7 @@
   </div>
   <div class="uv-body">
     <div class="uv-head"><div><h2>Usuarios de la plataforma</h2><p>Crea operadores y define qué módulos pueden usar.</p></div>
-    <button class="cap-btn" id="uvNew" style="margin:0;padding:10px 16px">+ Nuevo usuario</button></div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end"><button class="ghost" id="uvExp" type="button">⭳ Exportar</button><button class="ghost" id="uvImp" type="button">⭱ Importar</button><button class="cap-btn" id="uvNew" style="margin:0;padding:10px 16px">+ Nuevo usuario</button><input type="file" id="uvFile" accept=".json,application/json" style="display:none"></div></div>
     <div id="uvList"></div>
   </div>
 </div>
@@ -176,7 +176,7 @@
       <span class="topbar-separator" aria-hidden="true"></span>
       <span class="t-name" id="tName"></span>
       <span class="t-ver" id="tVer"></span>
-      <button class="cap-btn" id="capBtn" title="Genera una imagen de los resultados para enviar por WhatsApp">📷 Capturar resultados</button>
+      <span id="syncSt" style="margin-left:auto;font-size:12px;color:var(--text-muted)"></span><button class="cap-btn" style="margin-left:0" id="capBtn" title="Genera una imagen de los resultados para enviar por WhatsApp">📷 Capturar resultados</button>
     </div>
     <div id="frameHost"></div>
   </div>
@@ -194,122 +194,130 @@
     </div>
   </div>
 
+<script src="config.js"></script>
 <script>
 (function(){"use strict";
-var KEY="siglox-users-v1",LK="siglox-lock-v1",SK="siglox-session-v1",IT=2000,SEEDS="52beda8fb83346cca3dd42ad",SEEDH="55259afb8952c93f710e4940c0b26f4e4dd5e46cc2eeff669c54112d5d352145";
+var CFG=window.SIGLOX_CONFIG||{},TKEY="siglox-token",MIG="siglox-migrated";
+var DATA=["lacalera-shared:v1","devoluciones-hub:data-v1","nivel-servicio-hub:data-v1","reporte-moviles-hub:data-v1"];
 var MODS=[["devoluciones","🚚","Reporte Devoluciones Móviles"],["servicio","📈","Nivel de Servicio Móviles"],["reporte","📋","Reporte de Móviles"]];
 var ACTS=[["datos","Ingresar y editar datos (si se desmarca, solo ve resultados)"],["capturar","Capturar imagen de resultados"],["config","Cambiar sede de la plataforma"]];
-var RN={maestro:"MAESTRO",super:"SUPER",op:"OPERADOR"},RK={maestro:0,super:1,op:2};
+var RN={maestro:"MAESTRO",super:"SUPER",op:"OPERADOR"};
+var ME=null,LIST=[],editing=null,LS=localStorage,lsSet=LS.setItem.bind(LS);
 function $(i){return document.getElementById(i)}
 function esc(s){return String(s).replace(/[&<>"']/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]})}
-var K=[],H0=[];(function(){var p=[],n=2;while(p.length<64){if(p.every(function(q){return n%q}))p.push(n);n++}
-p.forEach(function(q,i){K[i]=(Math.pow(q,1/3)%1)*4294967296|0;if(i<8)H0[i]=(Math.sqrt(q)%1)*4294967296|0})})();
-function sha(s){var b=unescape(encodeURIComponent(s)),l=b.length,w=[],i,j,x=[],h=H0.slice();
-for(i=0;i<l;i++)w[i>>2]|=b.charCodeAt(i)<<(24-(i%4)*8);
-w[l>>2]|=0x80<<(24-(l%4)*8);w[(((l+8)>>6)+1)*16-1]=l*8;
-for(i=0;i<w.length;i+=16){
-for(j=0;j<64;j++){if(j<16)x[j]=w[i+j]|0;else{var a0=x[j-15],a1=x[j-2];
-x[j]=(x[j-16]+(((a0>>>7)|(a0<<25))^((a0>>>18)|(a0<<14))^(a0>>>3))+x[j-7]+(((a1>>>17)|(a1<<15))^((a1>>>19)|(a1<<13))^(a1>>>10)))|0}}
-var A=h[0],B=h[1],C=h[2],D=h[3],E=h[4],F=h[5],G=h[6],H=h[7],t1,t2;
-for(j=0;j<64;j++){
-t1=(H+(((E>>>6)|(E<<26))^((E>>>11)|(E<<21))^((E>>>25)|(E<<7)))+((E&F)^(~E&G))+K[j]+x[j])|0;
-t2=((((A>>>2)|(A<<30))^((A>>>13)|(A<<19))^((A>>>22)|(A<<10)))+((A&B)^(A&C)^(B&C)))|0;
-H=G;G=F;F=E;E=(D+t1)|0;D=C;C=B;B=A;A=(t1+t2)|0}
-h[0]=(h[0]+A)|0;h[1]=(h[1]+B)|0;h[2]=(h[2]+C)|0;h[3]=(h[3]+D)|0;h[4]=(h[4]+E)|0;h[5]=(h[5]+F)|0;h[6]=(h[6]+G)|0;h[7]=(h[7]+H)|0}
-return h.map(function(v){return("0000000"+(v>>>0).toString(16)).slice(-8)}).join("")}
-function hash(p,s){var h=sha(s+":"+p);for(var i=1;i<IT;i++)h=sha(h+":"+s+":"+p);return h}
-function salt(){var a=new Uint8Array(12);crypto.getRandomValues(a);return Array.prototype.map.call(a,function(b){return("0"+b.toString(16)).slice(-2)}).join("")}
-window.__sxHash=hash;
-var db;
-function save(){try{localStorage.setItem(KEY,JSON.stringify(db))}catch(e){alert("Este navegador no permite guardar los usuarios (almacenamiento bloqueado).")}}
-function load(){var d=null;try{d=JSON.parse(localStorage.getItem(KEY)||"null")}catch(e){}
-if(!d||!Array.isArray(d.users)||!d.users.length){db={users:[{u:"sacc",n:"Administrador Maestro",r:"maestro",s:SEEDS,h:SEEDH,x:0,p:{}}]};save()}else db=d}
-function raw(u){u=String(u||"").toLowerCase();for(var i=0;i<db.users.length;i++)if(db.users[i].u===u)return db.users[i];return null}
-function cur(){load();var u=raw(sessionStorage.getItem(SK));return u&&!u.x?u:null}
-function full(u){return u.r!=="op"}
-function can(k){var u=cur();return !!u&&(full(u)||!!u.p[k])}
-function lockObj(){try{return JSON.parse(localStorage.getItem(LK)||"{}")}catch(e){return{}}}
-function lockLeft(){return Math.max(0,Math.ceil(((lockObj().t||0)-Date.now())/1000))}
-function fail(){var l=lockObj();l.n=(l.n||0)+1;if(l.n>=5){l.n=0;l.t=Date.now()+30000}try{localStorage.setItem(LK,JSON.stringify(l))}catch(e){}}
-var V={login:$("login"),menu:$("menu"),users:$("usersView")};
-function show(w){V.login.style.display=w==="login"?"flex":"none";V.menu.style.display=w==="menu"?"flex":"none";V.users.style.display=w==="users"?"flex":"none";$("viewer").style.display="none"}
+function tk(){return LS.getItem(TKEY)||""}
+function api(fn,a){
+if(!CFG.url||!CFG.key||/PEGA/.test(CFG.url+CFG.key))return Promise.resolve({ok:false,error:"Falta configurar Supabase en config.js"});
+var h={"Content-Type":"application/json",apikey:CFG.key};if(/^eyJ/.test(CFG.key))h.Authorization="Bearer "+CFG.key;
+return fetch(CFG.url.replace(/\/+$/,"")+"/rest/v1/rpc/"+fn,{method:"POST",headers:h,body:JSON.stringify(a||{})})
+.then(function(r){return r.json().catch(function(){return{}}).then(function(j){return r.ok?j:{ok:false,error:(j&&j.message)||("Error del servidor ("+r.status+")")}})})
+.catch(function(){return{ok:false,net:true,error:"Sin conexión con el servidor."}})}
+function call(fn,a){a=a||{};a.p_token=tk();return api(fn,a).then(function(r){if(r&&r.error==="sesion"){expired()}return r})}
+function expired(){if(ME){alert("Tu sesión expiró o fue cerrada. Ingresa de nuevo.");out(true)}}
+function can(k){return !!ME&&(ME.r!=="op"||!!ME.p[k])}
+function full(){return !!ME&&ME.r!=="op"}
+function show(w){$("login").style.display=w==="login"?"flex":"none";$("menu").style.display=w==="menu"?"flex":"none";$("usersView").style.display=w==="users"?"flex":"none";$("viewer").style.display="none"}
 function err(id,t){$(id).textContent=t;return false}
-function out(){try{sessionStorage.removeItem(SK)}catch(e){}$("frameHost").innerHTML="";["uModal","pModal","capModal"].forEach(function(i){$(i).style.display="none"});$("lgU").value="";$("lgP").value="";$("lgErr").textContent="";show("login")}
-function bar(){var u=cur();if(!u)return;$("ubName").textContent=u.n;$("ubRole").textContent=RN[u.r];$("uvWho").textContent=u.n}
-function enter(){if(!cur()){out();return}bar();show("menu");if(window.__sxRefresh)window.__sxRefresh()}
-$("lgForm").addEventListener("submit",function(e){e.preventDefault();
-var l=lockLeft();if(l>0)return err("lgErr","Demasiados intentos fallidos. Espera "+l+" s.");
-load();var u=raw($("lgU").value.trim()),p=$("lgP").value;
-if(!u||hash(p,u.s)!==u.h){fail();return err("lgErr","Usuario o contraseña incorrectos.")}
-if(u.x)return err("lgErr","Esta cuenta está suspendida. Contacta al administrador.");
-try{localStorage.removeItem(LK)}catch(e){}
-sessionStorage.setItem(SK,u.u);$("lgP").value="";enter()});
-$("ubOut").onclick=out;$("uvOut").onclick=out;
+function busy(b,p){b.disabled=true;return p.then(function(r){b.disabled=false;return r})}
+function clearData(){if(LS.getItem(MIG))DATA.forEach(function(k){LS.removeItem(k)})}
+function out(skip){var t=tk(),done=function(){if(t)api("sx_logout",{p_token:t});LS.removeItem(TKEY);ME=null;pend={};clearData();
+$("frameHost").innerHTML="";["uModal","pModal","capModal"].forEach(function(i){$(i).style.display="none"});$("lgU").value="";$("lgP").value="";$("lgErr").textContent="";setSt("");show("login")};
+if(skip)return done();return flush().then(done)}
+function bar(){if(!ME)return;$("ubName").textContent=ME.n;$("ubRole").textContent=RN[ME.r];$("uvWho").textContent=ME.n}
+function enter(){if(!ME){show("login");return}bar();show("menu");if(window.__sxRefresh)window.__sxRefresh();pull(false)}
+/* ---- sincronización de datos de los dashboards ---- */
+var pend={},timer=null,sending=false;
+function setSt(t,bad){var e=$("syncSt");if(e){e.textContent=t;e.style.color=bad?"#ff9a9a":""}}
+function queue(k,v){if(!ME||DATA.indexOf(k)<0||!can("datos"))return;pend[k]=v;setSt("☁ Guardando…");clearTimeout(timer);timer=setTimeout(flush,700)}
+function flush(){clearTimeout(timer);if(sending)return new Promise(function(r){setTimeout(function(){r(flush())},300)});
+var keys=Object.keys(pend);if(!keys.length||!ME)return Promise.resolve();sending=true;
+return keys.reduce(function(p,k){return p.then(function(){var v=pend[k];
+return(v===null?call("sx_kv_del",{p_clave:k}):call("sx_kv_set",{p_clave:k,p_valor:v})).then(function(r){
+if(r&&r.ok){if(pend[k]===v)delete pend[k]}else if(r&&r.net){throw r}else{delete pend[k];setSt("⚠ "+(r&&r.error||"No se guardó"),1)}})})},Promise.resolve())
+.then(function(){sending=false;if(!Object.keys(pend).length)setSt("☁ Guardado")})
+.catch(function(){sending=false;setSt("⚠ Sin conexión, reintentando…",1);timer=setTimeout(flush,10000)})}
+document.addEventListener("visibilitychange",function(){if(document.hidden)flush()});
+function pull(strict){return call("sx_kv_get_all").then(function(r){
+if(!r||!r.ok){if(strict&&!(r&&r.error==="sesion"))alert(r&&r.error||"No se pudieron cargar los datos.");return false}
+var d=r.data||{};DATA.forEach(function(k){if(d[k]!=null)lsSet(k,d[k])});
+if(!LS.getItem(MIG)){var ups=DATA.filter(function(k){return d[k]==null&&LS.getItem(k)!==null&&can("datos")});
+return ups.reduce(function(p,k){return p.then(function(){return call("sx_kv_set",{p_clave:k,p_valor:LS.getItem(k)})})},Promise.resolve()).then(function(){lsSet(MIG,"1");return true})}
+return true})}
+/* ---- login ---- */
+$("lgForm").addEventListener("submit",function(e){e.preventDefault();$("lgErr").textContent="";
+busy($("lgBtn"),api("sx_login",{p_user:$("lgU").value.trim(),p_pass:$("lgP").value})).then(function(r){
+if(!r||!r.ok)return err("lgErr",(r&&r.error)||"No se pudo ingresar.");
+LS.setItem(TKEY,r.token);ME=r.user;$("lgP").value="";enter()})});
+$("ubOut").onclick=function(){out()};$("uvOut").onclick=function(){out()};
 function openPass(){["pC","pN","pR"].forEach(function(i){$(i).value=""});$("pErr").textContent="";$("pModal").style.display="flex";$("pC").focus()}
 $("ubPass").onclick=openPass;$("pCancel").onclick=function(){$("pModal").style.display="none"};
-$("pOk").onclick=function(){var u=cur();if(!u){out();return}
-var c=$("pC").value,n=$("pN").value;
-if(hash(c,u.s)!==u.h)return err("pErr","La contraseña actual no es correcta.");
-if(n.length<6)return err("pErr","La nueva contraseña debe tener al menos 6 caracteres.");
-if(n!==$("pR").value)return err("pErr","La confirmación no coincide.");
-if(n===c)return err("pErr","La nueva contraseña debe ser distinta de la actual.");
-u.s=salt();u.h=hash(n,u.s);save();$("pModal").style.display="none";alert("Contraseña actualizada.")};
-function canEdit(a,t){return a.u===t.u||t.r==="op"}
-function canDel(a,t){return a.u!==t.u&&(t.r==="op"||(t.r==="maestro"&&a.r==="super"))}
-function openUsers(){var u=cur();if(!u||!full(u)){out();return}bar();show("users");renderUsers()}
-function renderUsers(){var me=cur();if(!me||!full(me)){out();return}
-var list=db.users.slice().sort(function(a,b){return RK[a.r]-RK[b.r]||a.u.localeCompare(b.u)});
-$("uvList").innerHTML=list.map(function(t){
-var ic=full(t)?MODS.map(function(m){return m[1]}).join(" ")+" 👤":MODS.filter(function(m){return t.p[m[0]]}).map(function(m){return m[1]}).join(" ")||"<i style='font-size:12px;letter-spacing:0;color:#5a6674'>Sin módulos</i>";
-var b=canEdit(me,t)?'<button class="ghost" data-a="e" data-u="'+esc(t.u)+'">Editar</button>':"";
-if(canDel(me,t))b+='<button class="ghost" data-a="s" data-u="'+esc(t.u)+'">'+(t.x?"Reactivar":"Suspender")+'</button><button class="ghost red" data-a="d" data-u="'+esc(t.u)+'">Eliminar</button>';
-return'<div class="urow"><div><span class="un">'+esc(t.u)+'</span>'+(t.r!=="op"?'<span class="pill">'+RN[t.r]+'</span> ':"")+(t.u===me.u?'<span class="pill b">TÚ</span> ':"")+(t.x?'<span class="pill r">SUSPENDIDO</span>':"")+'<div class="ud">'+esc(t.n)+'</div><div class="ui">'+ic+'</div></div><div class="uacts">'+b+'</div></div>'}).join("")}
-$("uvList").addEventListener("click",function(e){var el=e.target.closest("button[data-a]");if(!el)return;
-var me=cur();if(!me||!full(me)){out();return}var t=raw(el.getAttribute("data-u")),a=el.getAttribute("data-a");
-if(!t)return renderUsers();
-if(a==="e"){if(canEdit(me,t))openEdit(t.u);return}
-if(!canDel(me,t))return alert("Acción no permitida para tu rol.");
-if(a==="s"){t.x=t.x?0:1;save();renderUsers()}
-else if(confirm("¿Eliminar a «"+t.n+"»? Esta acción no se puede deshacer.")){db.users=db.users.filter(function(x){return x!==t});save();renderUsers()}});
+$("pOk").onclick=function(){if($("pN").value!==$("pR").value)return err("pErr","La confirmación no coincide.");
+busy($("pOk"),call("sx_change_password",{p_current:$("pC").value,p_new:$("pN").value})).then(function(r){
+if(!r||!r.ok)return err("pErr",(r&&r.error)||"Error");$("pModal").style.display="none";alert("Contraseña actualizada.")})};
+/* ---- gestión de usuarios ---- */
+function canEdit(t){return ME.u===t.u||t.r==="op"}
+function canDel(t){return ME.u!==t.u&&(t.r==="op"||(t.r==="maestro"&&ME.r==="super"))}
+function loadUsers(){return call("sx_list_users").then(function(r){if(r&&r.ok){LIST=r.users;renderUsers();return true}if(r&&r.error!=="sesion")alert(r&&r.error||"Error");return false})}
+function openUsers(){if(!full())return;bar();show("users");$("uvList").innerHTML='<div class="ud" style="color:#8b97a7">Cargando…</div>';loadUsers()}
+function renderUsers(){$("uvList").innerHTML=LIST.map(function(t){
+var ic=t.r!=="op"?MODS.map(function(m){return m[1]}).join(" ")+" 👤":MODS.filter(function(m){return t.p[m[0]]}).map(function(m){return m[1]}).join(" ")||"<i style='font-size:12px;letter-spacing:0;color:#5a6674'>Sin módulos</i>";
+var b=canEdit(t)?'<button class="ghost" data-a="e" data-u="'+esc(t.u)+'">Editar</button>':"";
+if(canDel(t))b+='<button class="ghost" data-a="s" data-u="'+esc(t.u)+'">'+(t.x?"Reactivar":"Suspender")+'</button><button class="ghost red" data-a="d" data-u="'+esc(t.u)+'">Eliminar</button>';
+return'<div class="urow"><div><span class="un">'+esc(t.u)+'</span>'+(t.r!=="op"?'<span class="pill">'+RN[t.r]+'</span> ':"")+(t.u===ME.u?'<span class="pill b">TÚ</span> ':"")+(t.x?'<span class="pill r">SUSPENDIDO</span>':"")+'<div class="ud">'+esc(t.n)+'</div><div class="ui">'+ic+'</div></div><div class="uacts">'+b+'</div></div>'}).join("")}
+$("uvList").addEventListener("click",function(e){var el=e.target.closest("button[data-a]");if(!el||!ME)return;
+var t=LIST.filter(function(x){return x.u===el.getAttribute("data-u")})[0],a=el.getAttribute("data-a");if(!t)return;
+if(a==="e"){if(canEdit(t))openEdit(t.u);return}
+if(!canDel(t))return alert("Acción no permitida para tu rol.");
+var p;if(a==="s")p=call("sx_set_suspended",{p_username:t.u,p_value:!t.x});
+else if(confirm("¿Eliminar a «"+t.n+"»? Esta acción no se puede deshacer."))p=call("sx_delete_user",{p_username:t.u});else return;
+busy(el,p).then(function(r){if(r&&!r.ok&&r.error!=="sesion")alert(r.error);loadUsers()})});
 $("uvBack").onclick=function(){show("menu");SX.recheck()};
-var editing=null;
-function permBoxes(p){return'<div class="sect">Módulos</div>'+MODS.map(function(m){return chk(m[0],m[1]+" "+m[2],p[m[0]])}).join("")+'<div class="sect">Acciones</div>'+ACTS.map(function(a){return chk(a[0],a[1],p[a[0]])}).join("")}
 function chk(k,l,v){return'<label class="chk"><input type="checkbox" data-k="'+k+'"'+(v?" checked":"")+'> '+esc(l)+'</label>'}
+function permBoxes(p){return'<div class="sect">Módulos</div>'+MODS.map(function(m){return chk(m[0],m[1]+" "+m[2],p[m[0]])}).join("")+'<div class="sect">Acciones</div>'+ACTS.map(function(a){return chk(a[0],a[1],p[a[0]])}).join("")}
 function readPerms(){var p={};Array.prototype.forEach.call($("uPerm").querySelectorAll("input[data-k]"),function(i){if(i.checked)p[i.getAttribute("data-k")]=1});return p}
-function openEdit(uname){var me=cur();if(!me||!full(me)){out();return}
-var t=uname?raw(uname):null,self=t&&t.u===me.u;editing=t?t.u:null;
+function openEdit(uname){if(!full())return;var t=uname?LIST.filter(function(x){return x.u===uname})[0]:null,self=t&&t.u===ME.u;editing=t?t.u:null;
 $("uTitle").textContent=t?"Editar usuario":"Nuevo usuario";$("uErr").textContent="";
 $("uN").value=t?t.n:"";$("uU").value=t?t.u:"";$("uU").disabled=!!t;$("uP").value="";$("uP").disabled=!!self;
 $("uP").placeholder=self?"Usa «Cambiar contraseña» en el menú":t?"Dejar vacío para no cambiarla":"Mínimo 6 caracteres";
-var canSuper=!t&&me.r==="maestro"&&!db.users.some(function(x){return x.r==="super"});
+var canSuper=!t&&ME.r==="maestro"&&!LIST.some(function(x){return x.r==="super"});
 $("uRw").style.display=canSuper?"":"none";$("uR").value="op";
-var isFull=t&&full(t);
-$("uPerm").innerHTML=isFull?'<div class="sect">Permisos</div><div style="font-size:13.5px;color:#8b97a7">Acceso total a la plataforma.</div>':permBoxes(t?t.p:{devoluciones:1,servicio:1,reporte:1,datos:1,capturar:1});
+$("uPerm").innerHTML=t&&t.r!=="op"?'<div class="sect">Permisos</div><div style="font-size:13.5px;color:#8b97a7">Acceso total a la plataforma.</div>':permBoxes(t?t.p:{devoluciones:1,servicio:1,reporte:1,datos:1,capturar:1});
 $("uPerm").style.display="";$("uModal").style.display="flex";(t?$("uN"):$("uU")).focus()}
 $("uvNew").onclick=function(){openEdit(null)};
 $("uR").onchange=function(){$("uPerm").style.display=this.value==="super"?"none":""};
 $("uCancel").onclick=function(){$("uModal").style.display="none"};
-$("uOk").onclick=function(){var me=cur();if(!me||!full(me)){out();return}
-var n=$("uN").value.trim(),pw=$("uP").value;if(!n)return err("uErr","Escribe el nombre del usuario.");
-if(editing){var t=raw(editing);if(!t||!canEdit(me,t))return err("uErr","No tienes permiso para editar este usuario.");
-if(!$("uP").disabled&&pw){if(pw.length<6)return err("uErr","La contraseña debe tener al menos 6 caracteres.");t.s=salt();t.h=hash(pw,t.s)}
-t.n=n;if(t.r==="op")t.p=readPerms()}
-else{var un=$("uU").value.trim().toLowerCase();
-if(!/^[a-z0-9._-]{3,24}$/.test(un))return err("uErr","Usuario: 3 a 24 caracteres (letras, números, punto, guion).");
-if(raw(un))return err("uErr","Ese nombre de usuario ya existe.");
-if(pw.length<6)return err("uErr","La contraseña debe tener al menos 6 caracteres.");
-var sup=$("uR").value==="super";
-if(sup&&(me.r!=="maestro"||db.users.some(function(x){return x.r==="super"})))return err("uErr","No se puede crear un usuario SUPER.");
-var s=salt();db.users.push({u:un,n:n,r:sup?"super":"op",s:s,h:hash(pw,s),x:0,p:sup?{}:readPerms()})}
-save();$("uModal").style.display="none";bar();renderUsers()};
+$("uOk").onclick=function(){if(!full())return;var pw=$("uP").value;
+busy($("uOk"),call("sx_save_user",{p_create:!editing,p_username:editing||$("uU").value,p_nombre:$("uN").value,p_password:pw,p_rol:$("uR").value,p_permisos:readPerms()})).then(function(r){
+if(!r||!r.ok)return err("uErr",(r&&r.error)||"Error");$("uModal").style.display="none";
+call("sx_me").then(function(m){if(m&&m.ok){ME=m.user;bar()}});loadUsers()})};
+$("uvExp").onclick=function(){if(!full())return;if(!confirm("El archivo incluirá las contraseñas cifradas de los operadores. Guárdalo en un lugar seguro y no lo subas a GitHub. ¿Continuar?"))return;
+busy($("uvExp"),call("sx_export_users")).then(function(r){if(!r||!r.ok){if(r&&r.error!=="sesion")alert(r&&r.error||"Error");return}
+var b=new Blob([JSON.stringify({siglox:"usuarios",v:1,fecha:new Date().toISOString(),usuarios:r.users},null,1)],{type:"application/json"}),a=document.createElement("a");
+a.href=URL.createObjectURL(b);a.download="siglox-usuarios-"+new Date().toISOString().slice(0,10)+".json";a.click();setTimeout(function(){URL.revokeObjectURL(a.href)},2000);
+alert("Exportados "+r.users.length+" usuarios operadores.")})};
+$("uvImp").onclick=function(){if(full()){$("uvFile").value="";$("uvFile").click()}};
+$("uvFile").onchange=function(){var f=this.files[0];if(!f)return;var rd=new FileReader();rd.onload=function(){var d;try{d=JSON.parse(rd.result)}catch(e){return alert("El archivo no es un JSON válido.")}
+if(!d||d.siglox!=="usuarios"||!Array.isArray(d.usuarios))return alert("Este archivo no es una exportación de usuarios de SIGLOX.");
+if(!confirm("Se importarán "+d.usuarios.length+" usuarios. Los que ya existan se sobrescribirán con lo del archivo (nombre, permisos, contraseña y estado). ¿Continuar?"))return;
+busy($("uvImp"),call("sx_import_users",{p_users:d.usuarios})).then(function(r){if(!r||!r.ok){if(r&&r.error!=="sesion")alert(r&&r.error||"Error");return}
+alert("Importación lista: "+r.creados+" creados, "+r.actualizados+" actualizados, "+r.omitidos+" omitidos.");loadUsers()})};rd.readAsText(f)};
+/* ---- API para la página principal ---- */
+var SHIM='<script>(function(){var S=Storage.prototype,s=S.setItem,r=S.removeItem;S.setItem=function(k,v){s.call(this,k,v);try{if(this===localStorage&&parent.SXSync)parent.SXSync.set(String(k),String(v))}catch(e){}};S.removeItem=function(k){r.call(this,k);try{if(this===localStorage&&parent.SXSync)parent.SXSync.set(String(k),null)}catch(e){}}})();<\/script>';
+window.SXSync={set:queue};
 window.SX={can:can,
-guard:function(k){var u=cur();if(!u){out();return false}return full(u)||!!u.p[k]},
-recheck:function(){if(!cur())out();else{bar();if(window.__sxRefresh)window.__sxRefresh()}},
+prepare:function(id){return call("sx_me").then(function(r){
+if(!r||!r.ok){if(r&&r.error!=="sesion")alert(r&&r.error||"Error");return false}
+ME=r.user;if(!can(id)){alert("No tienes acceso a este módulo.");bar();if(window.__sxRefresh)window.__sxRefresh();return false}
+return pull(true)})},
+shim:function(h){return h.replace(/<head[^>]*>/i,function(m){return m+SHIM})},
+recheck:function(){return flush().then(function(){return call("sx_me")}).then(function(r){if(r&&r.ok){ME=r.user;bar();if(window.__sxRefresh)window.__sxRefresh()}})},
 frame:function(f){if(can("datos"))return;f.addEventListener("load",function(){try{var d=f.contentDocument,s=d.createElement("style");s.textContent='.tab-btn[data-tab="datos"]{display:none!important}';d.head.appendChild(s);var b=d.querySelector('.tab-btn[data-tab="resultados"]');if(b)b.click()}catch(e){}})},
-extraTiles:function(el){var u=cur();if(!u||!full(u))return;var b=document.createElement("button");b.className="app";
+extraTiles:function(el){if(!full())return;var b=document.createElement("button");b.className="app";
 b.innerHTML='<div class="app-icon" style="background:linear-gradient(145deg,#2a1d3f,#4a2f78)">👤</div><div class="app-name">Gestión de Usuarios</div><div class="app-version">v1.0</div>';
 b.addEventListener("click",openUsers);el.appendChild(b)}};
-load();if(cur())enter();else show("login");
+show("none");
+if(tk())call("sx_me").then(function(r){if(r&&r.ok){ME=r.user;enter()}else{show("login");if(r&&r.error&&r.error!=="sesion")$("lgErr").textContent=r.error}});
+else{show("login");if(!CFG.url||/PEGA/.test(CFG.url))$("lgErr").textContent="Falta configurar Supabase en config.js"}
 })();
 </script>
 <script>
@@ -495,8 +503,8 @@ load();if(cur())enter();else show("login");
     navigator.share({ files: [file], title: current ? current.nombre : "Reporte" }).catch(function () {});
   });
 
-  function openApp(a) {
-    if (!SX.guard(a.id)) return;
+  function openApp(a) { SX.prepare(a.id).then(function (ok) { if (ok) openApp2(a); }); }
+  function openApp2(a) {
     current = a;
     document.getElementById("tName").textContent = a.nombre;
     document.getElementById("tVer").textContent = a.version;
@@ -510,6 +518,7 @@ load();if(cur())enter();else show("login");
       moduleHtml = moduleHtml.replace(/la-calera/g, slug);
     }
     moduleHtml = moduleHtml.replace(/<title>[\s\S]*?<\/title>/i, "<title>" + a.nombre.replace(/[&<>\"']/g, "") + " · SIGLOX</title>");
+    moduleHtml = SX.shim(moduleHtml);
     f.srcdoc = moduleHtml;
     host.appendChild(f);
     SX.frame(f);
