@@ -3,6 +3,13 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<link rel="manifest" href="manifest.webmanifest" />
+<meta name="theme-color" content="#14181d" />
+<meta name="mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-title" content="SIGLOX" />
+<link rel="icon" type="image/png" href="icons/favicon.png" />
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png" />
 <title>SIGLOX | Sistema Integral de Gestión</title>
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23080d11'/%3E%3Cpath d='M9 20h27v22H9zM36 27h10l9 9v6H36z' fill='none' stroke='%2338d65b' stroke-width='4' stroke-linejoin='round'/%3E%3Ccircle cx='19' cy='44' r='4' fill='%23fff'/%3E%3Ccircle cx='46' cy='44' r='4' fill='%23fff'/%3E%3Cpath d='M14 15h7v-5h7v5h7' fill='none' stroke='%23fff' stroke-width='3' stroke-linecap='round'/%3E%3C/svg%3E" />
 <style>
@@ -171,6 +178,7 @@
       <button id="editConfigBtn" type="button" style="background:#17231b;color:#dfffe5;border:1px solid #38d65b;border-radius:8px;padding:9px 14px;font-weight:600;cursor:pointer">⚙ Cambiar sede</button>
       <button id="resetConfigBtn" type="button" style="background:transparent;color:#aab8ad;border:1px solid #405347;border-radius:8px;padding:9px 14px;cursor:pointer">Restablecer</button>
     </div>
+    <div id="installRow" style="display:none;justify-content:center;margin:0 0 18px"><button id="installBtn" type="button" style="background:#17231b;color:#dfffe5;border:1px solid #38d65b;border-radius:8px;padding:9px 14px;font-weight:600;cursor:pointer">📲 Instalar app</button></div>
     <div class="apps" id="apps"></div>
     <div class="menu-foot">© Elaborado por Santiago y Sebastián Chávez con fines educativos. Todos los derechos reservados.</div>
   </div>
@@ -592,6 +600,20 @@ else{show("login");if(!CFG.url||/PEGA/.test(CFG.url))$("lgErr").textContent="Fal
     menu.style.display = "flex";
     SX.recheck();
   });
+})();
+</script>
+<script>
+(function(){
+  if("serviceWorker" in navigator&&/^https?:$/.test(location.protocol)){window.addEventListener("load",function(){navigator.serviceWorker.register("sw.js").catch(function(){})})}
+  var dp=null,row=document.getElementById("installRow"),btn=document.getElementById("installBtn");
+  function standalone(){return window.matchMedia("(display-mode: standalone)").matches||window.navigator.standalone===true}
+  function show(){if(row&&!standalone())row.style.display="flex"}
+  window.addEventListener("beforeinstallprompt",function(e){e.preventDefault();dp=e;show()});
+  window.addEventListener("appinstalled",function(){dp=null;if(row)row.style.display="none"});
+  show();
+  if(btn)btn.addEventListener("click",function(){
+    if(dp){dp.prompt();dp.userChoice.then(function(){dp=null;if(row)row.style.display="none"});return}
+    alert("Para instalar SIGLOX:\n\n• Windows (Chrome o Edge): ícono de instalar en la barra de direcciones, o menú ⋮ → «Instalar SIGLOX» / «Aplicaciones».\n• Android (Chrome): menú ⋮ → «Instalar aplicación» o «Agregar a la pantalla de inicio».\n• iPhone/iPad (Safari): botón Compartir → «Agregar a pantalla de inicio».\n\nEl sitio debe abrirse con https://.")});
 })();
 </script>
 </body>
