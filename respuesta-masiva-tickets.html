@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Respuesta Masiva de Tickets</title>
+<style>
+:root{--bg:#14181d;--panel:#1b2129;--panel-alt:#212933;--border:#2c3642;--border-light:#3a4553;--text:#e8ecf1;--text-muted:#8b97a7;--text-faint:#5a6674;--amber:#38d65b;--inp:#12161b;--head:#1f3a2b;--ok:#4fd07a;--danger:#ff8d8d;--warn:#e8a13d}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font-family:'Segoe UI',-apple-system,BlinkMacSystemFont,sans-serif}
+.wrap{max-width:1000px;margin:0 auto;padding:24px 20px 40px}
+.top{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:18px}
+h1{font-size:21px;font-weight:600;margin:0}
+.panel{background:var(--panel);border:1px solid var(--border);border-radius:14px;padding:16px;margin-bottom:18px}
+.pt{font-weight:700;font-size:15px;margin:0 0 4px}.ps{font-size:12.5px;color:var(--text-muted);margin:0 0 12px}
+.step{display:inline-block;background:var(--amber);color:#07120a;border-radius:50%;width:22px;height:22px;text-align:center;line-height:22px;font-size:12px;font-weight:700;margin-right:8px}
+textarea,.in{width:100%;background:var(--inp);color:var(--text);border:1px solid var(--border);border-radius:8px;padding:8px 10px;font-size:13.5px;font-family:inherit}
+textarea{min-height:70px;resize:vertical}
+textarea.mono{font-family:Consolas,monospace;font-size:12.5px}
+textarea:focus,.in:focus{outline:2px solid #38d65b66;border-color:var(--amber)}
+.g2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin:10px 0}
+.g3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin:10px 0}
+@media(max-width:760px){.g2,.g3{grid-template-columns:1fr}}
+.lbl{font-size:11px;color:var(--text-muted);margin:0 0 4px;text-transform:uppercase;letter-spacing:.8px}
+.hint{font-size:11.5px;color:var(--text-faint);margin-top:4px}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-top:10px}
+.btn{background:var(--amber);color:#07120a;border:0;border-radius:9px;padding:9px 15px;font-size:13.5px;font-weight:700;cursor:pointer;font-family:inherit}
+.btn:hover{filter:brightness(1.1)}
+.ghost{background:none;color:var(--text-muted);border:1px solid var(--border);border-radius:9px;padding:8px 13px;font-size:13px;cursor:pointer;font-family:inherit}
+.ghost:hover{color:var(--text)}.ghost.red{color:var(--danger)}
+.sum{font-size:13px;color:var(--text-muted)}.sum b{color:var(--text)}
+.scroll{overflow:auto;max-height:420px;border:1px solid var(--border);border-radius:10px;margin-top:10px}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{position:sticky;top:0;background:var(--head);text-align:left;font-size:11.5px;letter-spacing:.6px;padding:7px 8px}
+td{padding:6px 8px;border-bottom:1px solid var(--border);white-space:nowrap}
+.chip{font-size:11px;border-radius:999px;padding:2px 9px;border:1px solid var(--border-light);color:var(--text-muted)}
+.chip.ok{color:var(--ok);border-color:#4fd07a66;background:#4fd07a1a}
+.chip.err{color:var(--danger);border-color:#ff8d8d66;background:#ff8d8d1a}
+details{margin-top:12px;font-size:13px;color:var(--text-muted);line-height:1.6}
+details summary{cursor:pointer;color:var(--amber)}
+details ol{margin:8px 0 0 18px;padding:0}
+.warn{font-size:12.5px;color:var(--warn);margin-top:10px;line-height:1.5}
+.theme-switch{display:inline-flex;align-items:center;gap:8px;cursor:pointer;user-select:none}
+.theme-switch .icon{font-size:13px;opacity:.65}.theme-switch input{display:none}
+.theme-switch .track{width:40px;height:22px;background:var(--panel-alt);border:1px solid var(--border);border-radius:999px;position:relative}
+.theme-switch .thumb{position:absolute;top:2px;left:2px;width:16px;height:16px;border-radius:50%;background:var(--amber);transition:transform .2s ease}
+.theme-switch input:checked ~ .track .thumb{transform:translateX(18px)}
+body.light{--bg:#dde3ea;--panel:#fff;--panel-alt:#eef1f6;--border:#c3ccd6;--border-light:#a7b3c0;--text:#1a2130;--text-muted:#4b5563;--text-faint:#78828f;--amber:#1a8f3c;--inp:#fff;--head:#cfe8d6;--ok:#1b7a3d;--danger:#b42318;--warn:#a15c07}
+body.light .btn{color:#fff}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top"><h1>✅ Respuesta Masiva de Tickets</h1>
+    <label class="theme-switch" title="Cambiar entre modo oscuro y claro"><span class="icon">🌙</span><input type="checkbox" id="themeToggle" /><span class="track"><span class="thumb"></span></span><span class="icon">☀️</span></label>
+  </div>
+
+  <div class="panel">
+    <div class="pt"><span class="step">1</span>Qué tickets responder y cómo</div>
+    <p class="ps">El script trabaja sobre «Actividades de cambio · Mis pendientes»: abre la lista de la subcategoría que indiques y, ticket por ticket, escribe la acción, cambia el estado, guarda, cierra la pestaña y refresca la lista hasta terminarla.</p>
+    <div class="g2">
+      <div><div class="lbl">Subcategoría (fila de «Mis pendientes»)</div>
+        <input class="in" id="sub" list="subs" placeholder="Ej: Sacar a Reparto EUM">
+        <datalist id="subs"><option>Despachar a Sucursal Destino</option><option>Devolución Automática EUM</option><option>Devolver EUM</option><option>Devolver al remitente</option><option>Modificar EUM</option><option>Redestinar</option><option>Sacar a Reparto</option><option>Sacar a Reparto EUM</option><option>Sacar a Reparto FDP</option><option>Validar Entrega</option></datalist>
+        <div class="hint">Debe coincidir con el nombre de la tabla (no distingue mayúsculas ni tildes).</div></div>
+      <div><div class="lbl">Estado final</div><input class="in" id="est" placeholder="Resuelto"><div class="hint">Opción que se elige en la lista «Estado» del ticket.</div></div>
+    </div>
+    <div><div class="lbl">Texto de la Acción</div><textarea id="txt" placeholder="Ej: gestionado"></textarea></div>
+    <div class="g3">
+      <div><div class="lbl">Límite de tickets (opcional)</div><input class="in" id="lim" type="number" min="1" placeholder="Vacío = toda la lista"></div>
+      <div><div class="lbl">Pausa entre tickets (seg)</div><input class="in" id="pau" type="number" min="0" step="0.5" placeholder="1"></div>
+      <div></div>
+    </div>
+    <div><div class="lbl">Solo estas órdenes de flete (opcional)</div><textarea class="mono" id="ofs" placeholder="Una por línea. Si lo dejas vacío se responden todas las de la lista."></textarea>
+      <div class="hint">Con órdenes indicadas solo se abren las filas de la primera página de la lista que coincidan.</div></div>
+    <div class="row"><span class="sum" id="sum"></span></div>
+  </div>
+
+  <div class="panel">
+    <div class="pt"><span class="step">2</span>Script para TOPdesk</div>
+    <p class="ps">Se ejecuta en tu navegador con tu sesión de TOPdesk. Cada ticket que procesa queda resuelto de verdad.</p>
+    <div class="row" style="margin-top:0"><button class="btn" id="copyS">📋 Copiar script</button></div>
+    <div id="man" style="display:none;margin-top:10px"><div class="warn" id="manMsg"></div><textarea class="mono" id="manTxt" readonly style="min-height:90px;margin-top:6px"></textarea></div>
+    <details><summary>Cómo usarlo, paso a paso</summary>
+      <ol>
+        <li>Entra a TOPdesk y abre <b>Actividades de cambio → …Mis pendientes</b> (la tabla dinámica). También puedes dejar abierta una lista «Resultados de búsqueda en Actividades» y el script parte desde ella.</li>
+        <li>Presiona <b>F12</b> → pestaña <b>Consola</b>. Si Chrome lo pide, escribe <code>allow pasting</code> y Enter. La consola debe estar en la página principal de TOPdesk (selector «top»).</li>
+        <li>Pega el script (Ctrl+V) y Enter. Aparece un panel verde abajo a la derecha.</li>
+        <li>Pulsa <b>Probar</b>: abre el primer ticket, escribe la acción y elige el estado, <u>sin guardar</u>. Revisa que todo esté bien.</li>
+        <li>Pulsa <b>Iniciar</b>. Continúa con ese ticket y sigue con los demás: guarda, cierra la pestaña, refresca la lista y repite. Puedes pausar.</li>
+        <li>Al terminar pulsa <b>Copiar resultados</b> y pégalos en el paso 3.</li>
+      </ol>
+      Si algo no se encuentra (botón, lista, editor), pulsa «Diagnóstico» y envíame el texto que aparece.
+    </details>
+    <div class="warn">⚠ Prueba siempre con «Probar» y revisa los primeros tickets antes de correr toda la lista. Si un ticket falla, el proceso se detiene para no dejar tickets a medias. Consulta con TI si la automatización está permitida en tu empresa.</div>
+  </div>
+
+  <div class="panel">
+    <div class="pt"><span class="step">3</span>Resultados y respaldo</div>
+    <p class="ps">Pega aquí lo que copió el panel de TOPdesk.</p>
+    <textarea class="mono" id="res" style="min-height:80px" placeholder="Pega aquí los resultados…"></textarea>
+    <div class="row"><button class="btn" id="apply">Mostrar resultados</button><button class="ghost" id="copyT">Copiar tabla (Excel)</button><button class="ghost" id="csv">Descargar CSV</button><button class="ghost red" id="clear">Limpiar</button><span class="sum" id="rsum"></span></div>
+    <div class="scroll" id="tbl" style="display:none"></div>
+  </div>
+</div>
+<script>
+(function(){
+var K="rmt-masivo:v1",S={sub:"Sacar a Reparto EUM",est:"Resuelto",txt:"gestionado",lim:"",pau:"1",ofs:"",rows:[]};
+function $(i){return document.getElementById(i)}
+function esc(s){return String(s==null?"":s).replace(/[&<>"']/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]})}
+function save(){try{localStorage.setItem(K,JSON.stringify(S))}catch(e){}}
+function load(){try{var s=JSON.parse(localStorage.getItem(K)||"null");if(s&&typeof s==="object"){for(var k in s)S[k]=s[k]}}catch(e){}}
+function ofList(){return String($("ofs").value||"").split(/[\s,;]+/).map(function(x){return x.replace(/\D/g,"")}).filter(function(x){return x.length>=6})}
+function readCfg(){S.sub=$("sub").value.trim();S.est=$("est").value.trim();S.txt=$("txt").value;S.lim=$("lim").value.trim();S.pau=$("pau").value.trim();S.ofs=$("ofs").value;save()}
+function info(){readCfg();var o=ofList(),m=[];if(!S.sub)m.push("falta la subcategoría");if(!S.est)m.push("falta el estado final");if(!S.txt.trim())m.push("falta el texto de la acción");
+$("sum").innerHTML=m.length?'<b style="color:var(--danger)">'+m.join(" · ")+'</b>':'Listo: <b>'+esc(S.sub)+'</b> → acción «'+esc(S.txt.length>40?S.txt.slice(0,40)+"…":S.txt)+'» → estado <b>'+esc(S.est)+'</b>'+(S.lim?' · límite <b>'+esc(S.lim)+'</b>':'')+(o.length?' · <b>'+o.length+'</b> órdenes indicadas':'')}
+/* ---- script que corre dentro de TOPdesk (se serializa con toString) ---- */
+function RUNNER(CFG){
+function J(x){try{var n=0;while(typeof x==="string"&&n++<3)x=JSON.parse(x)}catch(e){}return x}
+CFG=J(CFG);
+var res=[],stop=false,busy=false,done=0,lastTotal=0;
+var OFS=(CFG.ofs||[]).map(function(x){return String(x).replace(/\D/g,"")}).filter(Boolean);
+var LIM=parseInt(CFG.lim,10)||0,PAU=Math.max(0,parseFloat(CFG.pau)||0)*1000;
+try{var op=window.__rmtPanel;if(op&&op.parentNode)op.parentNode.removeChild(op)}catch(x){}
+var HOST=document.createElement("div");window.__rmtPanel=HOST;HOST.style.cssText="all:initial;position:fixed;top:70px;right:14px;z-index:2147483647;display:block;width:380px;height:auto;";var SH=HOST.attachShadow({mode:"open"});var P=document.createElement("div");P.id="__rmtp";SH.appendChild(P);function inP(e){try{var r=e.getRootNode();return r===SH}catch(x){return false}}
+P.style.cssText="display:block;width:380px;max-height:80vh;overflow:auto;margin:0;box-sizing:border-box;z-index:2147483647;background:#14181d;color:#e8ecf1;font:13px Segoe UI,Arial,sans-serif;border:1px solid #38d65b;border-radius:12px;padding:12px;box-shadow:0 8px 30px #0009";
+P.innerHTML='<div style="display:flex;justify-content:space-between;font-weight:700;margin-bottom:6px"><span>SIGLOX · Respuesta masiva de tickets · v9</span><span id="ix" style="cursor:pointer">✕</span></div><div id="is" style="margin-bottom:6px;min-height:34px">Listo: «'+String(CFG.sub).replace(/</g,"&lt;")+'». Déjate en «Mis pendientes» (o en la lista) y pulsa «Probar».</div><div id="iw" style="font-size:11px;color:#e8a13d;min-height:14px;margin-bottom:4px"></div><div style="height:6px;background:#2c3642;border-radius:4px;margin-bottom:8px"><div id="ib" style="height:6px;width:0;background:#38d65b;border-radius:4px"></div></div><div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:6px"><button id="it">Probar</button><button id="ig">Iniciar</button><button id="ip">Pausar</button><button id="ic">Copiar resultados</button><button id="idg">Diagnóstico</button></div><textarea id="ir" readonly rows="4" style="width:100%;background:#12161b;color:#e8ecf1;border:1px solid #2c3642;border-radius:6px;font:11px Consolas,monospace"></textarea>';
+document.documentElement.appendChild(HOST);
+Array.prototype.forEach.call(P.querySelectorAll("button"),function(b){b.style.cssText="background:#38d65b;color:#07120a;border:0;border-radius:7px;padding:6px 10px;font-weight:700;cursor:pointer"});
+function q(i){return P.querySelector("#"+i)}
+function sleep(ms){return new Promise(function(r){setTimeout(r,ms)})}
+function norm(s){return String(s||"").toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g,"")}
+var lastStep="",lastStepAt=Date.now();function status(t){lastStep=t;lastStepAt=Date.now();q("is").textContent=t}
+var WD=setInterval(function(){if(!HOST.isConnected){clearInterval(WD);return}var s=Math.round((Date.now()-lastStepAt)/1000),w=q("iw");if(!w)return;w.textContent=busy?("⏱ "+s+" s en este paso"+(s>45?" · posible bloqueo: pulsa «Diagnóstico» y copia el resultado":"")):""},1000);
+function nowS(){var d=new Date(),p=function(n){return(n<10?"0":"")+n};return p(d.getHours())+":"+p(d.getMinutes())+":"+p(d.getSeconds())}
+function render(){var ok=res.filter(function(r){return r[2]==="OK"}).length,tot=lastTotal?Math.max(lastTotal,done):0;q("ib").style.width=(tot?Math.min(100,Math.round(done/tot*100)):0)+"%";q("ir").value=res.map(function(r){return r.join("\t")}).join("\n");return ok}
+async function waitFor(fn,ms,every){var t=Date.now();while(Date.now()-t<ms){var v=fn();if(v)return v;await sleep(every||300)}return null}
+/* ---- DOM: documentos, iframes y shadow ---- */
+function roots(d){var out=[d],all;try{all=d.querySelectorAll("*")}catch(e){return out}
+for(var i=0;i<all.length;i++){var e=all[i];if(e.shadowRoot)out=out.concat(roots(e.shadowRoot));if(e.tagName==="IFRAME"||e.tagName==="FRAME"){try{if(e.contentDocument)out=out.concat(roots(e.contentDocument))}catch(x){}}}return out}
+var _rc=null,_rt=0;function R(){var n=Date.now();if(_rc&&n-_rt<350)return _rc;_rc=roots(document);_rt=n;return _rc}function Rfresh(){_rc=null;return R()}
+function arect(e){var b=e.getBoundingClientRect(),x=b.left,y=b.top,w=e.ownerDocument.defaultView;try{while(w&&w.frameElement){var fe=w.frameElement,fb=fe.getBoundingClientRect();x+=fb.left+(fe.clientLeft||0);y+=fb.top+(fe.clientTop||0);w=fe.ownerDocument.defaultView}}catch(z){}return{l:x,t:y,w:b.width,h:b.height,r:x+b.width,b:y+b.height}}
+function vis(e){try{if(!e.getClientRects().length)return false;var w=e.ownerDocument.defaultView;while(w&&w.frameElement){if(!w.frameElement.getClientRects().length)return false;w=w.frameElement.ownerDocument.defaultView}
+var a=arect(e);if(a.w<=0||a.h<=0)return false;if(a.r<=0||a.b<=0||a.l>=window.innerWidth||a.t>=window.innerHeight)return false;
+var cs=e.ownerDocument.defaultView.getComputedStyle(e);return cs.visibility!=="hidden"&&cs.display!=="none"}catch(x){return false}}
+function rendered(e){try{if(!e.getClientRects().length)return false;var w=e.ownerDocument.defaultView;while(w&&w.frameElement){if(!w.frameElement.getClientRects().length)return false;w=w.frameElement.ownerDocument.defaultView}var cs=e.ownerDocument.defaultView.getComputedStyle(e);return cs.visibility!=="hidden"&&cs.display!=="none"}catch(x){return false}}
+function all(sel,fn){var out=[];R().forEach(function(d){var els;try{els=d.querySelectorAll(sel)}catch(x){return}Array.prototype.forEach.call(els,function(e){if(inP(e))return;if(!fn||fn(e))out.push(e)})});return out}
+function own(e){return norm(e.textContent).replace(/\s+/g," ").trim()}
+function cls(e){var c=e.className;return typeof c==="string"?c:(c&&c.baseVal)||""}
+function mev(e,type,extra){var w=e.ownerDocument.defaultView,b=e.getBoundingClientRect(),o={bubbles:true,cancelable:true,view:w,clientX:Math.round(b.left+b.width/2),clientY:Math.round(b.top+b.height/2),button:0,detail:1};if(extra)for(var k in extra)o[k]=extra[k];var C=/^pointer/.test(type)?(w.PointerEvent||w.MouseEvent):w.MouseEvent;e.dispatchEvent(new C(type,o))}
+function click(e){["pointerdown","mousedown","pointerup","mouseup","click"].forEach(function(t){mev(e,t)})}
+function dbl(e){click(e);mev(e,"pointerdown",{detail:2});mev(e,"mousedown",{detail:2});mev(e,"pointerup",{detail:2});mev(e,"mouseup",{detail:2});mev(e,"click",{detail:2});mev(e,"dblclick",{detail:2})}
+function dis(e){var x=e;for(var i=0;i<3&&x;i++){if(x.disabled||x.getAttribute&&x.getAttribute("aria-disabled")==="true"||/(^|[\s_-])(disabled|is-disabled)($|[\s_-])/.test(cls(x)))return true;x=x.parentElement}return false}
+/* ---- lista de resultados ---- */
+function docText(d){try{return norm(d.body?d.body.innerText:"")}catch(x){return""}}
+function listRows(){var out=[],seen={};
+R().forEach(function(d){if(docText(d).indexOf("numero de la actividad")<0&&docText(d).indexOf("lista de comprobacion")<0&&!/seleccionado/.test(docText(d)))return;
+Array.prototype.forEach.call(d.querySelectorAll("td,div,span,a"),function(e){if(inP(e))return;var t=(e.textContent||"").trim();if(!/^A\d{4}-\d{3,}$/.test(t)||e.children.length>1||seen[t]||!rendered(e))return;
+var row=(e.closest&&e.closest("tr,[role=row]"))||e.parentElement,of="";
+Array.prototype.forEach.call(row.querySelectorAll("td,div,span,a"),function(c){var tt=(c.textContent||"").trim();if(!of&&/^\d{8,10}$/.test(tt)&&c.children.length===0)of=tt});
+seen[t]=1;out.push({num:t,of:of,cell:e,row:row,y:arect(e).t})})});
+out.sort(function(a,b){return a.y-b.y});return out}
+function pickRows(){var r=listRows();if(OFS.length)r=r.filter(function(x){return OFS.indexOf(x.of)>=0});return r}
+function footer(){var tot=0;R().forEach(function(d){var m=/(\d+)\s+de\s+(\d+)\s+seleccionado/i.exec(d.body?d.body.innerText:"");if(m)tot=Math.max(tot,parseInt(m[2],10))});return tot}
+function sigList(){var r=listRows();return r.slice(0,3).map(function(x){return x.num}).join(",")+"|"+footer()+"|"+r.length}
+/* ---- tabla dinámica (Mis pendientes) ---- */
+function pivotCount(sub){var want=norm(sub).replace(/\s+/g," ").trim(),hit=null;
+all("td,th,a,span,div",function(e){return e.children.length<2&&own(e)===want&&vis(e)}).some(function(e){var tr=e.closest&&e.closest("tr");if(!tr)return false;
+var ls=Array.prototype.filter.call(tr.querySelectorAll("a"),function(a){return/^\d+$/.test((a.textContent||"").trim())&&vis(a)});if(ls.length){hit=ls[ls.length-1];return true}return false});return hit}
+/* ---- ticket abierto ---- */
+function ticket(num){var sel=null;
+if(!tabLabel(num)||!editors().length)return null;
+R().forEach(function(d){if(sel)return;Array.prototype.forEach.call(d.querySelectorAll("select"),function(x){if(sel||!rendered(x))return;var txt=Array.prototype.map.call(x.options,function(o){return norm(o.text)}).join("|");if(/resuelto/.test(txt)&&/(en proceso|listo para iniciar)/.test(txt))sel=x})});
+return{d:document,sel:sel}}
+function editors(){var out=[];
+R().forEach(function(d){Array.prototype.forEach.call(d.querySelectorAll("[contenteditable=true],[contenteditable='']"),function(e){if(!inP(e)&&vis(e))out.push(e)});try{if(d.designMode==="on"&&d.body&&vis(d.body))out.push(d.body)}catch(x){}});
+out.sort(function(a,b){var A=arect(a),B=arect(b);return B.w*B.h-A.w*A.h});return out}
+function setEd(el,text){var d=el.ownerDocument,w=d.defaultView;el.focus();
+try{var sl=w.getSelection(),r=d.createRange();r.selectNodeContents(el);sl.removeAllRanges();sl.addRange(r);d.execCommand("delete");d.execCommand("insertText",false,text)}catch(x){}
+var okk=function(){return norm(el.innerText||el.textContent).replace(/\s+/g," ").indexOf(norm(text).replace(/\s+/g," ").slice(0,20))>=0};
+if(!okk()){el.innerHTML="<p>"+text.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/\n/g,"<br>")+"</p>";["input","keyup","change"].forEach(function(n){el.dispatchEvent(new w.Event(n,{bubbles:true}))})}
+try{R().forEach(function(dd){var ww=dd.defaultView;if(ww&&ww.CKEDITOR&&ww.CKEDITOR.instances){Object.keys(ww.CKEDITOR.instances).forEach(function(k){var ins=ww.CKEDITOR.instances[k];try{if(ins.document&&ins.document.$===d&&!okk())ins.setData("<p>"+text+"</p>")}catch(x){}})}})}catch(x){}
+return okk()}
+function setEstado(sel,want){var w=norm(want).trim(),i=-1,k;for(k=0;k<sel.options.length;k++){if(norm(sel.options[k].text).trim()===w){i=k;break}}
+if(i<0)for(k=0;k<sel.options.length;k++){if(norm(sel.options[k].text).trim().indexOf(w)===0){i=k;break}}
+if(i<0)throw new Error("El estado «"+want+"» no está en la lista (hay: "+Array.prototype.map.call(sel.options,function(o){return o.text.trim()}).join(", ")+")");
+var win=sel.ownerDocument.defaultView;sel.focus();sel.selectedIndex=i;["input","change"].forEach(function(n){sel.dispatchEvent(new win.Event(n,{bubbles:true}))});
+try{sel.dispatchEvent(new win.FocusEvent("blur"));sel.dispatchEvent(new win.FocusEvent("focusout",{bubbles:true}))}catch(x){}
+return norm(sel.options[sel.selectedIndex].text).trim()}
+function estadoLabel(){var c=all("div,span,label,td",function(e){return e.children.length<2&&own(e)==="estado"&&rendered(e)&&arect(e).t>100});c.sort(function(a,b){return arect(a).t-arect(b).t});return c[0]||null}
+function estadoField(lab){var la=arect(lab),cy=la.t+la.h/2,c=all("div,span,input,a",function(e){if(!rendered(e)||e===lab)return false;var a=arect(e),ey=a.t+a.h/2;if(!(a.l>=la.r-2&&a.l<la.r+260&&Math.abs(ey-cy)<16&&a.w>60&&a.h<44))return false;var t=own(e)||norm(e.value||"");return/listo para iniciar|en proceso|aprobado|resuelto|iniciado|en espera|cerrado/.test(t)});c.sort(function(a,b){return a.children.length-b.children.length});return c[0]||null}
+function hclick(e){["pointerover","mouseover","pointermove","mousemove"].forEach(function(t){try{mev(e,t)}catch(x){}});click(e)}
+function deepTarget(e){var d=e.ownerDocument,b=e.getBoundingClientRect(),t=null;try{t=d.elementFromPoint(b.left+b.width/2,b.top+b.height/2)}catch(x){}return(t&&(t===e||e.contains(t)))?t:e}
+function optEls(w,fa){return all("div,span,li,td,a,option,tr",function(e){if(e.tagName==="INPUT"||!rendered(e)||e.children.length>1||own(e)!==w)return false;var a=arect(e);return a.t>fa.t+2&&a.t<fa.b+500&&a.l>=fa.l-60&&a.l<fa.r+80})}
+function keyEv(el,type,code,key){var w=el.ownerDocument.defaultView,ev=new w.KeyboardEvent(type,{bubbles:true,cancelable:true,key:key,keyCode:code,which:code});try{Object.defineProperty(ev,"keyCode",{get:function(){return code}});Object.defineProperty(ev,"which",{get:function(){return code}})}catch(x){}el.dispatchEvent(ev)}
+async function setEstadoCustom(want){var w=norm(want).trim(),lab=await waitFor(estadoLabel,6000);if(!lab)throw new Error("No encontré la etiqueta «Estado» en el ticket");
+var f=estadoField(lab);if(!f)throw new Error("No encontré el campo de «Estado» junto a su etiqueta");
+var cur=function(){return own(f)||norm(f.value||"")};if(cur()===w)return want;
+var fa=arect(f),btn=null;
+if(f.id){R().forEach(function(d){var b;try{b=d.getElementById(f.id+"_button")}catch(x){}if(b&&!btn&&rendered(b))btn=b})}
+var opt=null;
+for(var i=0;i<3&&!opt;i++){if(!optEls("aprobado",fa).length){hclick(btn||f);try{f.focus()}catch(x){}}
+opt=await waitFor(function(){return optEls(w,fa)[0]||null},2500)}
+if(opt){hclick(opt);try{opt.click()}catch(x){}}
+else{status("No pude abrir la lista de «Estado»; pruebo escribiendo el valor…");f.focus();try{Object.getOwnPropertyDescriptor(f.ownerDocument.defaultView.HTMLInputElement.prototype,"value").set.call(f,want)}catch(x){f.value=want}
+["input","keyup","change"].forEach(function(n){f.dispatchEvent(new f.ownerDocument.defaultView.Event(n,{bubbles:true}))});keyEv(f,"keydown",13,"Enter");keyEv(f,"keypress",13,"Enter");keyEv(f,"keyup",13,"Enter")}
+await sleep(600);
+var ok=await waitFor(function(){var ff=estadoField(estadoLabel()||lab);return ff&&(own(ff)===w||norm(ff.value||"")===w)?true:null},4000);
+if(!ok)throw new Error("Intenté elegir «"+want+"» pero el campo «Estado» no cambió"+(opt?"":" (no apareció la lista desplegable)"));return want}
+function guardarBtn(){var c=all("button,a,input[type=button],input[type=submit],div,span",function(e){if(!vis(e))return false;var t=norm(e.value||e.textContent||"").replace(/\s+/g," ").trim();return t==="guardar"&&e.children.length<2});
+c.sort(function(a,b){var pa=/^(BUTTON|A|INPUT)$/.test(a.tagName)?0:1,pb=/^(BUTTON|A|INPUT)$/.test(b.tagName)?0:1;return pa-pb});return c[0]||null}
+function savedMsg(){return R().some(function(d){return /(ficha|fecha|ha sido|fue|ya)\s+(ha sido |fue |ya )?guardad/.test(docText(d))})}
+function accionVacia(){var e=editors()[0];return !!e&&!norm(e.innerText||e.textContent).replace(/\s+/g,"").length}
+function saved2(){return savedMsg()||accionVacia()}
+/* ---- pestañas ---- */
+function tabLabel(num){var n=norm(num),c=all("a,div,span,li,button,td",function(e){var a;try{a=arect(e)}catch(x){return false}return a.t<95&&a.h>0&&a.h<80&&vis(e)&&norm(e.textContent).indexOf(n)>=0&&e.children.length<6&&e.textContent.length<160});
+c.sort(function(a,b){return a.textContent.length-b.textContent.length});return c[0]||null}
+function closeCands(root){var out=[];(root?Array.prototype.slice.call(root.querySelectorAll("a,span,div,button,i,svg,img,td,li")):all("a,span,div,button,i,svg,img,td,li")).forEach(function(e){if(inP(e)||!vis(e))return;var a=arect(e);if(!(a.t<95&&a.w>0&&a.w<44&&a.h<44))return;var t=(e.textContent||"").trim(),ti=(e.getAttribute("title")||"")+" "+(e.getAttribute("aria-label")||"")+" "+(e.getAttribute("alt")||"");if(/^[×✕✖xX]$/.test(t)||/close|cerrar/i.test(cls(e)+" "+ti))out.push(e)});return out}
+function tabEl(num){var n=norm(num);return all("[guielement=window_tab]",function(e){if(!rendered(e))return false;var inf=norm(e.getAttribute("mangoinfobox")||"");return inf.indexOf(n)>=0||norm(e.textContent).indexOf(n)>=0})[0]||null}
+function tabRoot(lab){var x=lab;for(var i=0;i<10&&x;i++){try{if(x.getAttribute&&x.getAttribute("guielement")==="window_tab")return x}catch(e){}x=x.parentElement}return null}
+function tabSmall(tab){var out=[];Array.prototype.forEach.call(tab.querySelectorAll("*"),function(e){if(!rendered(e))return;var a=arect(e);if(a.w>0&&a.w<=40&&a.h>0&&a.h<=40)out.push(e)});return out}
+function closeBtn(num){var tab=tabEl(num),lab=tab||tabLabel(num);if(!lab)return null;if(!tab)tab=tabRoot(lab);
+if(tab){var byAlt=Array.prototype.filter.call(tab.querySelectorAll("*"),function(e){var t=(e.getAttribute("alt")||"")+" "+(e.getAttribute("aria-label")||"")+" "+(e.getAttribute("title")||"");return/cerrar|close/i.test(t)&&rendered(e)});if(byAlt.length)return byAlt[0];
+var ta=arect(tab),sm=tabSmall(tab).filter(function(e){var a=arect(e);return a.l>ta.l+ta.w*0.6});
+if(sm.length){var mr=Math.max.apply(null,sm.map(function(e){return arect(e).r}));var cand=sm.filter(function(e){return arect(e).r>=mr-14});cand.sort(function(a,b){return arect(a).t-arect(b).t});return deepTarget(cand[0])}
+try{var d=tab.ownerDocument,t=d.elementFromPoint(ta.l+ta.w-12,ta.t+14);if(t&&tab.contains(t))return t}catch(e){}}
+var x=lab,i;for(i=0;i<6&&x;i++){var cc=closeCands(x);if(cc.length)return cc[cc.length-1];x=x.parentElement}
+var la=arect(lab),g=closeCands(null).filter(function(e){var a=arect(e);return a.l>=la.l-4&&Math.abs(a.t-la.t)<70});g.sort(function(a,b){return Math.abs(arect(a).l-la.r)-Math.abs(arect(b).l-la.r)});return g[0]||null}
+function refreshBtn(){var c=all("button,a,div,span,i",function(e){if(!vis(e))return false;var ti=(e.getAttribute("title")||"")+" "+(e.getAttribute("aria-label")||"")+" "+cls(e);return/refresh|actualiz|refresc|recarg|reload/i.test(ti)&&arect(e).t<220});
+c.sort(function(a,b){var pa=/^(BUTTON|A)$/.test(a.tagName)?0:1,pb=/^(BUTTON|A)$/.test(b.tagName)?0:1;return pa-pb});if(c.length)return c[0];
+var lc=all("button,a,div,span",function(e){return vis(e)&&e.children.length<3&&/lista de comprobacion/.test(own(e))})[0];
+if(lc){var s=((lc.closest&&lc.closest("button,a"))||lc).nextElementSibling;while(s&&!vis(s))s=s.nextElementSibling;if(s)return s}return null}
+/* ---- un ticket ---- */
+async function openRow(r){var t=ticket(r.num);if(t)return t;
+var a=r.cell.querySelector&&r.cell.querySelector("a"),tries=[function(){if(a)a.click();else click(r.cell)},function(){dbl(r.cell)},function(){var oc=null;Array.prototype.forEach.call(r.row.querySelectorAll("td,div,span,a"),function(c){if(!oc&&(c.textContent||"").trim()===r.of&&c.children.length===0)oc=c});dbl(oc||r.row)}];
+for(var i=0;i<tries.length;i++){try{tries[i]()}catch(x){}t=await waitFor(function(){return ticket(r.num)},i===0?3500:7000);if(t)return t}
+throw new Error("No se pudo abrir el ticket "+r.num+" desde la lista")}
+async function processOne(r,isTest){
+status((isTest?"Probando ":"Procesando ")+(done+1)+(lastTotal?" de "+lastTotal:"")+" · "+r.num+" · OF "+(r.of||"?")+" — abriendo el ticket…");
+var t=await openRow(r);
+var ed=await waitFor(function(){return editors()[0]},8000);if(!ed)throw new Error("No se encontró el campo «Acción» del ticket");
+status("Escribiendo la acción…");
+if(!setEd(ed,CFG.txt))throw new Error("No se pudo escribir el texto en «Acción»");
+await sleep(300);
+status("Cambiando el estado a «"+CFG.est+"»…");
+t=ticket(r.num)||t;var chosen=t.sel?setEstado(t.sel,CFG.est):await setEstadoCustom(CFG.est);
+await sleep(700);
+if(isTest)return{test:true,chosen:chosen};
+var gb=await waitFor(function(){var b=guardarBtn();return b&&!dis(b)?b:null},7000);if(!gb)throw new Error("El botón «Guardar» no se habilitó");
+status("Guardando…");hclick(deepTarget(gb));await sleep(1500);if(!saved2()){var gb2=guardarBtn()||gb;hclick(deepTarget(gb2));try{deepTarget(gb2).click()}catch(x){}await sleep(1200)}
+var okS=await waitFor(function(){return saved2()?true:null},15000);if(!okS)throw new Error("Pulsé «Guardar» pero no se confirmó el guardado del ticket "+r.num+" (revisa el botón con «Diagnóstico»)");
+await sleep(1200);
+status("Cerrando la pestaña del ticket…");
+var cb=await waitFor(function(){return closeBtn(r.num)},12000,400);if(!cb)throw new Error("No se encontró el botón para cerrar la pestaña del ticket "+r.num+" tras esperar 12 s");
+hclick(cb);await sleep(900);if(tabLabel(r.num)||ticket(r.num)){try{cb.click()}catch(x){}}
+var closed=await waitFor(function(){return!ticket(r.num)&&!tabLabel(r.num)&&!tabEl(r.num)},10000);if(!closed)throw new Error("La pestaña del ticket "+r.num+" no se cerró");
+return{ok:true,chosen:chosen}}
+async function refrescar(prev,num){status("Refrescando la lista…");
+function gone(){var l=listRows();return l.length>0&&!l.some(function(x){return x.num===num})}
+for(var k=0;k<2;k++){var rb=refreshBtn();if(!rb)throw new Error("No se encontró el botón de refrescar la lista");click(rb);await sleep(900);if(sigList()===prev&&!gone()){try{rb.click()}catch(x){}}
+var t0=Date.now(),ch=false;await sleep(1200);
+while(Date.now()-t0<(k===0?9000:15000)){if(gone()||(sigList()!==prev&&listRows().length)){ch=true;break}await sleep(400)}
+if(ch){await sleep(800);return true}}
+return false}
+/* ---- bucle principal ---- */
+async function go(isTest){if(busy)return;busy=true;stop=false;var fails=0;
+try{
+var rows=listRows();
+if(!rows.length){var lk=pivotCount(CFG.sub);
+if(!lk){status("No veo la lista de resultados ni la fila «"+CFG.sub+"» de «Mis pendientes». Abre esa pestaña y vuelve a pulsar.");busy=false;return}
+status("Abriendo la lista de «"+CFG.sub+"»…");click(lk);try{lk.click()}catch(x){}
+rows=await waitFor(function(){var r=listRows();return r.length?r:null},25000)||[];
+if(!rows.length){status("No apareció la lista de resultados tras pulsar la cantidad de «"+CFG.sub+"».");busy=false;return}await sleep(800)}
+lastTotal=footer()||rows.length;
+if(!isTest&&!confirm("Se resolverán "+(LIM?Math.min(LIM,lastTotal):lastTotal)+" tickets reales"+(OFS.length?" (filtrados por órdenes de flete)":"")+" con la acción «"+CFG.txt+"» y estado «"+CFG.est+"». ¿Continuar?")){busy=false;status("Cancelado.");return}
+while(!stop){
+rows=pickRows();
+if(!rows.length&&done){status("La lista aparece vacía; espero a que cargue…");rows=await waitFor(function(){var x=pickRows();return x.length?x:null},7000)||[];if(!rows.length&&!listRows().length){var lk2=pivotCount(CFG.sub);if(lk2){status("Reabriendo la lista de «"+CFG.sub+"»…");click(lk2);try{lk2.click()}catch(x){}rows=await waitFor(function(){var x=pickRows();return x.length?x:null},15000)||[]}}}
+if(!rows.length){status(done?"Terminado: "+res.filter(function(r){return r[2]==="OK"}).length+" tickets resueltos.":"No hay tickets"+(OFS.length?" que coincidan con las órdenes indicadas":"")+" en la lista.");break}
+if(LIM&&done>=LIM){status("Terminado: se alcanzó el límite de "+LIM+" tickets.");break}
+var r=rows[0],prev=sigList();
+try{var out=await processOne(r,isTest);
+if(isTest){status("Prueba lista en "+r.num+": acción escrita y estado «"+out.chosen+"» elegido (sin guardar). Revísalo. Si está bien pulsa «Iniciar» (continúa con este mismo ticket).");busy=false;return}
+res.push([r.num,r.of,"OK","",nowS()]);done++;fails=0;render();
+await sleep(400);var chg=await refrescar(prev,r.num);
+if(!chg&&pickRows()[0]&&pickRows()[0].num===r.num){res.push([r.num,r.of,"ERROR","El ticket sigue en la lista tras guardar y refrescar",nowS()]);render();status("Se detuvo: el ticket "+r.num+" sigue apareciendo en la lista tras resolverlo.");break}
+if(PAU)await sleep(PAU)}
+catch(e){res.push([r.num,r.of,"ERROR",e.message,nowS()]);render();status("Se detuvo en "+r.num+": "+e.message);break}}
+if(stop&&!/Se detuvo|Terminado/.test(q("is").textContent))status("Pausado tras "+done+" tickets. Pulsa «Iniciar» para continuar.")
+}catch(e2){status("Error inesperado: "+e2.message)}
+busy=false;render()}
+/* ---- diagnóstico ---- */
+function short(e,n){try{return e.outerHTML.replace(/\s+/g," ").slice(0,n||200)}catch(x){return""}}
+function diag(){var o=["VERSIÓN DEL SCRIPT: v9","ÚLTIMO PASO: "+lastStep+" (hace "+Math.round((Date.now()-lastStepAt)/1000)+" s)"];try{
+var rows=listRows();o.push("FILAS DE LISTA visibles: "+rows.length+" | total pie: "+footer());rows.slice(0,3).forEach(function(r){o.push("  · "+r.num+" OF="+r.of+" celda="+short(r.cell,150))});
+o.push("DOCUMENTOS:");R().forEach(function(d,i){var n=0,f=null;try{Array.prototype.forEach.call(d.querySelectorAll("td,div,span,a"),function(e){var t=(e.textContent||"").trim();if(/^A\d{4}-\d{3,}$/.test(t)){n++;if(!f)f=e}})}catch(x){}var u="";try{u=(d.location&&d.location.href||"").slice(0,80)}catch(x){}o.push("  #"+i+" url="+u+" cab="+(docText(d).indexOf("numero de la actividad")>=0)+" celdasA="+n+(f?" 1ra="+f.tagName+" vis="+vis(f)+" render="+rendered(f)+" rect="+JSON.stringify(arect(f)):""))});
+var pv=pivotCount(CFG.sub);o.push("PIVOT «"+CFG.sub+"»: "+(pv?short(pv,150):"no visible"));
+var nums=rows.slice(0,1).map(function(r){return r.num});var abiertos=all("a,div,span,li,td",function(e){var a;try{a=arect(e)}catch(x){return false}return a.t<95&&a.h>0&&a.h<80&&vis(e)&&/[a-z]\d{4}-\d{3,}/i.test(e.textContent)&&e.children.length<6&&e.textContent.length<160}).slice(0,4);
+o.push("PESTAÑAS (zona superior) con número: "+abiertos.length);abiertos.forEach(function(e){o.push("  · "+short(e,220))});
+var tr=abiertos[0]?tabRoot(abiertos[0]):null;o.push("PESTAÑA raíz: "+(tr?short(tr,160):"no encontrada"));if(tr)tabSmall(tr).slice(0,8).forEach(function(e){o.push("  · pequeño: "+short(e,170)+" rect="+JSON.stringify(arect(e)))});
+var tn=rows[0]?rows[0].num:(abiertos[0]?(/[A-Z]\d{4}-\d{3,}/i.exec(abiertos[0].textContent)||[""])[0]:"");var te=tn?tabEl(tn):null;o.push("tabEl("+tn+"): "+(te?short(te,120):"no")+" | closeBtn: "+(tn&&closeBtn(tn)?short(closeBtn(tn),140):"no"));
+o.push("CERRAR candidatos: "+closeCands(null).slice(0,5).map(function(e){return short(e,140)}).join(" || "));
+var rb=refreshBtn();o.push("REFRESCAR: "+(rb?short(rb,200):"no encontrado"));
+var gb=guardarBtn();o.push("GUARDAR: "+(gb?short(gb,200)+" deshabilitado="+dis(gb):"no encontrado"));
+if(gb){var gk=gb.querySelectorAll("*");o.push("GUARDAR hijos: "+gk.length);Array.prototype.slice.call(gk,0,4).forEach(function(k){o.push("  · "+short(k,200))});var dt=deepTarget(gb);o.push("GUARDAR clic real iría a: "+short(dt,200))}
+var ed=editors();o.push("EDITORES: "+ed.length+(ed[0]?" · "+short(ed[0],200):""));
+var el=estadoLabel();o.push("ESTADO etiqueta: "+(el?short(el,160):"no encontrada"));if(el){var ef=estadoField(el);o.push("ESTADO campo: "+(ef?short(ef,260):"no encontrado"));var near=all("div,span,input,a",function(e){var a=arect(e),b=arect(el);return rendered(e)&&Math.abs((a.t+a.h/2)-(b.t+b.h/2))<16&&a.l>=b.r-2&&a.l<b.r+300&&e.children.length<3}).slice(0,6);near.forEach(function(e){o.push("  · cerca: "+short(e,200)+" | texto="+own(e).slice(0,40))})}
+var ap=all("div,span,li,td,a,option",function(e){return rendered(e)&&own(e)==="aprobado"&&e.children.length<2});o.push("OPCIÓN «Aprobado» visible (abre la lista a mano antes del diagnóstico): "+ap.length);ap.slice(0,2).forEach(function(e){o.push("  · "+short(e,220)+" || padre: "+short(e.parentElement,200))});
+var ss=all("select",function(e){return vis(e)});o.push("SELECTS visibles: "+ss.length);ss.slice(0,6).forEach(function(s){o.push("  · "+short(s,120).replace(/<option[\s\S]*$/,"")+" opciones="+Array.prototype.map.call(s.options,function(x){return x.text.trim()}).slice(0,10).join(" / "))});
+o.push("Documentos accesibles: "+R().length)}catch(e){o.push("Error en el diagnóstico: "+e.message)}return o.join("\n")}
+q("it").onclick=function(){go(true)};q("ig").onclick=function(){go(false)};q("ip").onclick=function(){stop=true;status("Pausando al terminar el ticket actual…")};
+q("idg").onclick=function(){q("ir").value=diag();status("Diagnóstico listo. Pulsa «Copiar resultados» y pégalo en el chat.")};
+q("ic").onclick=function(){var t=q("ir");t.select();try{navigator.clipboard.writeText(t.value)}catch(e){}try{document.execCommand("copy")}catch(e){}status("Copiado. Pégalo donde lo necesites.")};
+q("ix").onclick=function(){try{HOST.parentNode.removeChild(HOST)}catch(x){}}}
+/* ---- eventos del módulo ---- */
+function copy(t){return new Promise(function(ok){
+function fb(){var a=document.createElement("textarea");a.value=t;a.style.cssText="position:fixed;left:-9999px";document.body.appendChild(a);a.select();var r=false;try{r=document.execCommand("copy")}catch(e){}document.body.removeChild(a);ok(r)}
+try{if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(t).then(function(){ok(true)},fb);return}}catch(e){}fb()})}
+function manual(t,msg){$("man").style.display="";$("manMsg").textContent=msg;$("manTxt").value=t;$("manTxt").focus();$("manTxt").select()}
+["sub","est","txt","lim","pau","ofs"].forEach(function(i){$(i).addEventListener("input",info)});
+$("copyS").onclick=function(){info();if(!S.sub||!S.est||!S.txt.trim())return alert("Completa la subcategoría, el estado final y el texto de la acción.");
+var cfg={sub:S.sub,est:S.est,txt:S.txt,lim:S.lim,pau:S.pau,ofs:ofList()};var code="("+RUNNER.toString()+")("+JSON.stringify(cfg)+");";
+copy(code).then(function(ok){if(ok){$("man").style.display="none";alert("Script copiado. Ahora pégalo en la consola de TOPdesk.")}else manual(code,"No se pudo copiar automáticamente. Selecciona todo el texto de abajo (Ctrl+A), cópialo (Ctrl+C) y pégalo en la consola de TOPdesk.")})};
+function parseRes(){var L=$("res").value.replace(/\r/g,"").split("\n").filter(function(l){return l.trim()});return L.map(function(l){var c=l.split("\t");return{n:c[0]||"",o:c[1]||"",e:c[2]||"",m:c[3]||"",h:c[4]||""}}).filter(function(r){return/^A\d/.test(r.n)})}
+function showRes(){var r=S.rows;if(!r.length){$("tbl").style.display="none";$("rsum").textContent="";return}
+var ok=r.filter(function(x){return x.e==="OK"}).length;$("rsum").innerHTML='<b>'+ok+'</b> resueltos · <b'+(r.length-ok?' style="color:var(--danger)"':'')+'>'+(r.length-ok)+'</b> con error';
+$("tbl").style.display="";$("tbl").innerHTML='<table><tr><th>ACTIVIDAD</th><th>ORDEN DE FLETE</th><th>ESTADO</th><th>MENSAJE</th><th>HORA</th></tr>'+r.map(function(x){return'<tr><td>'+esc(x.n)+'</td><td>'+esc(x.o)+'</td><td><span class="chip '+(x.e==="OK"?"ok":"err")+'">'+esc(x.e)+'</span></td><td style="white-space:normal">'+esc(x.m)+'</td><td>'+esc(x.h)+'</td></tr>'}).join("")+'</table>'}
+$("apply").onclick=function(){var r=parseRes();if(!r.length)return alert("No encontré resultados en el texto pegado.");S.rows=S.rows.concat(r);$("res").value="";save();showRes()};
+function tsv(){return["Actividad","Orden de Flete","Estado","Mensaje","Hora"].join("\t")+"\n"+S.rows.map(function(x){return[x.n,x.o,x.e,x.m,x.h].join("\t")}).join("\n")}
+$("copyT").onclick=function(){if(!S.rows.length)return;var t=tsv();copy(t).then(function(ok){if(ok)alert("Tabla copiada. Pégala en Excel.");else manual(t,"No se pudo copiar automáticamente. Copia el texto de abajo (Ctrl+A, Ctrl+C).")})};
+$("csv").onclick=function(){if(!S.rows.length)return;var q=function(v){return'"'+String(v||"").replace(/"/g,'""')+'"'};
+var c="﻿"+["Actividad","Orden de Flete","Estado","Mensaje","Hora"].map(q).join(";")+"\n"+S.rows.map(function(x){return[x.n,x.o,x.e,x.m,x.h].map(q).join(";")}).join("\n");
+var b=new Blob([c],{type:"text/csv;charset=utf-8"}),a=document.createElement("a"),d=new Date();a.href=URL.createObjectURL(b);a.download="tickets-resueltos-"+d.getFullYear()+("0"+(d.getMonth()+1)).slice(-2)+("0"+d.getDate()).slice(-2)+".csv";a.click();setTimeout(function(){URL.revokeObjectURL(a.href)},2000)};
+$("clear").onclick=function(){if(!S.rows.length||!confirm("¿Borrar los resultados guardados? Descarga el CSV antes si necesitas el respaldo."))return;S.rows=[];save();showRes()};
+(function(){var t=$("themeToggle"),l=false;try{l=localStorage.getItem("siglox-tema")==="light"}catch(e){}document.body.classList.toggle("light",l);t.checked=l;
+t.addEventListener("change",function(){document.body.classList.toggle("light",t.checked);try{localStorage.setItem("siglox-tema",t.checked?"light":"dark")}catch(e){}})})();
+window.__rmt={RUNNER:RUNNER};
+load();$("sub").value=S.sub||"";$("est").value=S.est||"";$("txt").value=S.txt||"";$("lim").value=S.lim||"";$("pau").value=S.pau||"";$("ofs").value=S.ofs||"";info();showRes();
+})();
+</script>
+</body>
+</html>
